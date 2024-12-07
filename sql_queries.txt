@@ -1,0 +1,38 @@
+USE mydb;
+
+--P1
+SELECT *, (SELECT o.customer_id FROM orders_ AS o WHERE od.order_id = o.id) AS customer_id 
+FROM order_details AS od;
+
+--P2
+SELECT * FROM order_details AS od 
+WHERE od.order_id IN (SELECT o.id FROM orders_ as o WHERE o.shipper_id = 3);
+
+--P3
+SELECT od.order_id, AVG(od.quantity) AS Avg_quantity
+FROM (SELECT * FROM order_details WHERE quantity > 10) AS od
+GROUP BY od.order_id
+
+--P4
+WITH temp AS (SELECT * FROM order_details WHERE quantity > 10)
+
+SELECT od.order_id, AVG(od.quantity) AS Avg_quantity
+FROM temp AS od
+GROUP BY od.order_id
+
+--P5
+DROP FUNCTION IF EXISTS Divide;
+DELIMITER //
+
+CREATE FUNCTION Divide(num1 FLOAT, num2 FLOAT)
+RETURNS FLOAT
+DETERMINISTIC
+NO SQL
+BEGIN
+	DECLARE res FLOAT;
+    SET res = num1 / num2;
+    RETURN res;
+END //
+
+DELIMITER ;
+SELECT od.quantity, Divide(od.quantity, 5) AS Divided FROM order_details AS od
